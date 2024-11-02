@@ -222,7 +222,7 @@
                     }
                 });
             }
-
+            
             // Events.
             this.tagInput
                 .on('keydown', function(event) {
@@ -280,29 +280,41 @@
                         that.createTag(that._cleanedInput());
                     }
                 });
-
-            // Autocomplete.
+    
+            //Autocomplete
             if (this.options.availableTags || this.options.tagSource || this.options.autocomplete.source) {
                 var autocompleteOptions = {
                     select: function(event, ui) {
                         that.createTag(ui.item.value);
-                        // Preventing the tag input to be updated with the chosen value.
-                        return false;
+                        return false;  // Prevent input from updating with selected tag
                     }
                 };
                 $.extend(autocompleteOptions, this.options.autocomplete);
-
-                // tagSource is deprecated, but takes precedence here since autocomplete.source is set by default,
-                // while tagSource is left null by default.
-                autocompleteOptions.source = this.options.tagSource || autocompleteOptions.source;
-
-                this.tagInput.autocomplete(autocompleteOptions).on('autocompleteopen', function(event, ui) {
-                    that.tagInput.data('autocomplete-open', true);
-                }).on('autocompleteclose', function(event, ui) {
-                    that.tagInput.data('autocomplete-open', false)
-                });
+            
+                // Use availableTags or tagSource as the local data source
+                var sourceData = this.options.tagSource || this.options.availableTags;
+                
+                // Wrap the source function with debounce, using local data only
+                autocompleteOptions.source = debounce(function(request, response) {
+                    // Filter tags locally based on the term entered
+                    const filteredTags = sourceData.filter(tag => 
+                        tag.toLowerCase().startsWith(request.term.toLowerCase())
+                    );
+                    response(filteredTags);
+                }, 300);  // Adjust delay as needed
+            
+                // Initialize autocomplete with the debounced source
+                this.tagInput
+                    .autocomplete(autocompleteOptions)
+                    .on('autocompleteopen', function() {
+                        that.tagInput.data('autocomplete-open', true);
+                    })
+                    .on('autocompleteclose', function() {
+                        that.tagInput.data('autocomplete-open', false);
+                    });
             }
         },
+            
 
         _cleanedInput: function() {
             // Returns the contents of the tag input, cleaned and ready to be passed to createTag
@@ -315,6 +327,15 @@
 
         _tags: function() {
             return this.tagList.find('.tagit-choice:not(.removed)');
+        },
+        
+        // Debouncer for tags that accepts a delay arg
+        debounce: function(func, delay) {
+            var timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), delay);
+            };
         },
 
         assignedTags: function() {

@@ -1,6 +1,7 @@
 import $ from 'jquery';
 
 import { Controller } from '@hotwired/stimulus';
+import { debounce } from '../utils/debounce';
 
 declare global {
   interface JQuery {
@@ -20,17 +21,28 @@ export class TagController extends Controller {
   static values = {
     options: { default: {}, type: Object },
     url: String,
+    debounce: { type: Number, default: 300 },
   };
 
   declare optionsValue: any;
   declare urlValue: any;
+  declare debounceValue: number;
   tagit?: JQuery<HTMLElement>;
 
   connect() {
     const preprocessTag = this.cleanTag.bind(this);
+    // Debounces by specified debounceValue to reduce unnecessary calls to database while user types, default is 300
+    const debouncedAutocomplete = debounce((request: {term : string}, response : (data : any) => void) => {
+      $.ajax({
+        url: this.urlValue,
+        dataType: 'json',
+        data: { term: request.term },
+        success: response,
+      });
+    }, this.debounceValue)
 
     $(this.element).tagit({
-      autocomplete: { source: this.urlValue },
+      autocomplete: { source: debouncedAutocomplete },
       preprocessTag,
       ...this.optionsValue,
     });

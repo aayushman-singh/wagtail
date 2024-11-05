@@ -21,7 +21,7 @@ export class TagController extends Controller {
   static values = {
     options: { default: {}, type: Object },
     url: String,
-    debounce: { type: Number, default: 300 },
+    debounce: { type: Number, default: 400 },
   };
 
   declare optionsValue: any;

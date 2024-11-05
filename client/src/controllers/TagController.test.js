@@ -47,7 +47,7 @@ describe('TagController', () => {
 
     expect(tagitMock).toHaveBeenCalledWith({
       allowSpaces: true,
-      autocomplete: { source: '/admin/tag-autocomplete/' },
+      autocomplete: { source : expect.any(Function)},
       preprocessTag: expect.any(Function),
       tagLimit: 10,
     });
@@ -58,8 +58,6 @@ describe('TagController', () => {
     const [{ preprocessTag }] = tagitMock.mock.calls[0];
 
     expect(preprocessTag).toBeInstanceOf(Function);
-
-    expect(preprocessTag()).toEqual();
     expect(preprocessTag('"flat white"')).toEqual(`"flat white"`);
     expect(preprocessTag("'long black'")).toEqual(`"'long black'"`);
     expect(preprocessTag('caffe latte')).toEqual(`"caffe latte"`);

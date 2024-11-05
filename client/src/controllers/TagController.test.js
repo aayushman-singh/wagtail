@@ -47,7 +47,7 @@ describe('TagController', () => {
 
     expect(tagitMock).toHaveBeenCalledWith({
       allowSpaces: true,
-      autocomplete: { source : expect.any(Function)},
+      autocomplete: { source: expect.any(Function) },
       preprocessTag: expect.any(Function),
       tagLimit: 10,
     });

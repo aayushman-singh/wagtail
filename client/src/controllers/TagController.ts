@@ -49,6 +49,11 @@ export class TagController extends Controller {
       preprocessTag,
       ...this.optionsValue,
     });
+}
+
+autocomplete(request: { term: string }, response: (data: any) => void) {
+        $.ajax({...});
+
   }
 
   /**

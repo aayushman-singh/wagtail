@@ -25,6 +25,14 @@ describe('TagController', () => {
   beforeEach(() => {
     element = null;
     jest.clearAllMocks();
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve([]), // mocked response data
+      })
+    );
+  });
+  afterEach(() => {
+    jest.restoreAllMocks(); // ensures all mocks are reset after each test
   });
 
   it('should attach the jQuery tagit to the controlled element', async () => {

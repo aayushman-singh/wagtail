@@ -44,14 +44,27 @@ export class TagController extends Controller {
     });
 }
 
-autocomplete(request: { term: string }, response: (data: any) => void) {
-  $.ajax({
-    url: this.urlValue,
-    dataType: 'json',
-    data: { term: request.term },
-    success: response,
-  });
+async autocomplete(request: { term: string }, response: (data: any) => void) {
+  try {
+    const res = await fetch(`${this.urlValue}?term=${encodeURIComponent(request.term)}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    response(data);
+  } catch (error) {
+    // Fallback to empty results on error
+    response([]); 
+  }
 }
+
   /**
    * Double quote a tag if it contains a space
    * and if it isn't already quoted.

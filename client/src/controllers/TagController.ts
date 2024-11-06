@@ -31,16 +31,9 @@ export class TagController extends Controller {
 
   connect() {
     const preprocessTag = this.cleanTag.bind(this);
-    // Debounces by specified debounceValue to reduce unnecessary calls to database while user types, default is 300
+    // Debounces by specified debounceValue to reduce unnecessary calls to database while user types
     const debouncedAutocomplete = debounce(
-      (request: { term: string }, response: (data: any) => void) => {
-        $.ajax({
-          url: this.urlValue,
-          dataType: 'json',
-          data: { term: request.term },
-          success: response,
-        });
-      },
+      this.autocomplete,
       this.debounceValue,
     );
 
@@ -52,10 +45,13 @@ export class TagController extends Controller {
 }
 
 autocomplete(request: { term: string }, response: (data: any) => void) {
-        $.ajax({...});
-
-  }
-
+  $.ajax({
+    url: this.urlValue,
+    dataType: 'json',
+    data: { term: request.term },
+    success: response,
+  });
+}
   /**
    * Double quote a tag if it contains a space
    * and if it isn't already quoted.
